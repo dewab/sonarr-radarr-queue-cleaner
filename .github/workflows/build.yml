@@ -14,29 +14,30 @@ on:
 
 jobs:
   push_to_registry:
-    name: Push Docker image to Docker Hub
+    name: Push Docker image to GitHub Container Registry
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
         id: checkout
         uses: actions/checkout@v4
       
-      - name: Log in to Docker Hub
-        id: docker-login
-        uses: docker/login-action@latest
+      - name: Log in to GitHub Container Registry
+        id: ghcr-login
+        uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_KEY }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@latest
+        uses: docker/metadata-action@v4
         with:
-          images: dewab/sonarr-radarr-queue-cleaner
+          images: ghcr.io/${{ github.repository }}
       
       - name: Build and push Docker image
         id: docker-build
-        uses: docker/build-push-action@latest
+        uses: docker/build-push-action@v4
         with:
           context: .
           file: ./Dockerfile
